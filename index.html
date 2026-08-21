@@ -1,0 +1,980 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+
+
+
+
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escala Digital — Tráfego pago que vira faturamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  /* ---------- Reset + base ---------- */
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-0: #05070d;
+    --bg-1: #080b16;
+    --bg-2: #0c1124;
+    --surface: rgba(16, 23, 48, 0.55);
+    --surface-2: rgba(20, 28, 58, 0.7);
+    --border: rgba(120, 150, 220, 0.12);
+    --border-strong: rgba(120, 150, 220, 0.22);
+    --text: #e7ecf7;
+    --text-dim: #8a93ab;
+    --text-mute: #5d667e;
+    --blue: #2f6bff;
+    --blue-soft: #6f93ff;
+    --blue-deep: #0b1f4a;
+    --accent-glow: 0 0 0 1px rgba(47,107,255,.35), 0 30px 80px -30px rgba(47,107,255,.55);
+    --radius: 18px;
+  }
+  html, body { background: var(--bg-0); color: var(--text); font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.55; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(47,107,255,0.12), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(20,40,120,0.18), transparent 60%),
+      linear-gradient(180deg, #05070d 0%, #070a14 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* ---------- Typography ---------- */
+  h1,h2,h3,h4 { font-family: 'Sora', sans-serif; font-weight: 700; letter-spacing: -0.02em; line-height: 1.08; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--blue-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before { content: ""; width: 22px; height: 1px; background: var(--blue-soft); }
+
+  /* ---------- Layout ---------- */
+  .container { width: min(1200px, 92vw); margin: 0 auto; }
+  section { padding: 120px 0; position: relative; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(14px);
+    background: rgba(5,7,13,0.7);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: center; padding: 14px 0; }
+  .logo { display: flex; align-items: center; gap: 12px; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+  .logo-mark {
+    width: 56px; height: 56px;
+    background-image: url("assets/logo.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    flex-shrink: 0;
+  }
+  /* Footer logo (smaller) */
+  .footer-brand .logo-mark { width: 44px; height: 44px; }
+  .logo-sub { color: var(--text-mute); font-size: 11px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; display: block; }
+  .nav-links { display: flex; gap: 36px; }
+  .nav-links a { color: var(--text-dim); font-size: 14px; font-weight: 500; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 22px; border-radius: 999px;
+    font-weight: 600; font-size: 14px;
+    transition: transform .2s, box-shadow .2s, background .2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #2f6bff 0%, #1a44c4 100%);
+    color: white;
+    box-shadow: 0 12px 30px -10px rgba(47,107,255,0.65), inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -10px rgba(47,107,255,0.8), inset 0 1px 0 rgba(255,255,255,0.25); }
+  .btn-ghost {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.07); }
+  @media (max-width: 760px) { .nav-links { display: none; } }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 90px 0 100px; position: relative; overflow: hidden; isolation: isolate; min-height: 1007px; height: auto; }
+
+  /* Elegant floating shapes (HeroGeometric adaptation) */
+  .hero-shapes { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .hero-shapes::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(47,107,255,0.06) 0%, transparent 50%, rgba(120,80,255,0.05) 100%);
+    filter: blur(80px);
+  }
+  .hero-grid { position: relative; z-index: 1; }
+
+  .shape {
+    position: absolute;
+    border-radius: 999px;
+    backdrop-filter: blur(2px);
+    border: 2px solid rgba(255,255,255,0.12);
+    box-shadow: 0 8px 32px 0 rgba(255,255,255,0.08);
+    opacity: 0;
+    transform: translateY(-150px) rotate(var(--r0, 0deg));
+    animation: shape-in 2.4s cubic-bezier(0.23, 0.86, 0.39, 0.96) forwards, shape-float 12s ease-in-out infinite;
+  }
+  .shape::after {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: 999px;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.22), transparent 70%);
+  }
+  @keyframes shape-in {
+    to { opacity: 1; transform: translateY(0) rotate(var(--r, 0deg)); }
+  }
+  @keyframes shape-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 15px; }
+  }
+  .shape-1 { left: -8%; top: 14%; width: 560px; height: 130px; --r: 12deg; --r0: -3deg;
+    background: linear-gradient(to right, rgba(47,107,255,0.22), transparent); animation-delay: .3s, 2.7s; }
+  .shape-2 { right: -6%; top: 68%; width: 460px; height: 110px; --r: -15deg; --r0: -30deg;
+    background: linear-gradient(to right, rgba(120,80,255,0.18), transparent); animation-delay: .5s, 2.9s; }
+  .shape-3 { left: 6%; bottom: -2%; width: 280px; height: 74px; --r: -8deg; --r0: -23deg;
+    background: linear-gradient(to right, rgba(20,80,200,0.22), transparent); animation-delay: .4s, 2.8s; }
+  .shape-4 { right: 18%; top: 6%; width: 190px; height: 56px; --r: 20deg; --r0: 5deg;
+    background: linear-gradient(to right, rgba(80,180,255,0.18), transparent); animation-delay: .6s, 3s; }
+  .shape-5 { left: 26%; top: 2%; width: 140px; height: 38px; --r: -25deg; --r0: -40deg;
+    background: linear-gradient(to right, rgba(120,200,255,0.16), transparent); animation-delay: .7s, 3.1s; }
+  @media (max-width: 760px) {
+    .shape-1 { width: 320px; height: 80px; }
+    .shape-2 { width: 280px; height: 70px; }
+    .shape-3 { display: none; }
+  }
+
+  /* Fade overlay top/bottom for depth */
+  .hero-fade {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, var(--bg-0) 0%, transparent 20%, transparent 80%, rgba(5,7,13,0.6) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .hero-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 80px; align-items: center; }
+  @media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; gap: 50px; } }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 14px; border-radius: 999px;
+    background: rgba(47,107,255,0.08);
+    border: 1px solid rgba(47,107,255,0.25);
+    font-size: 13px; color: var(--blue-soft);
+    margin-bottom: 28px;
+  }
+  .hero-tag .dot { width: 7px; height: 7px; border-radius: 50%; background: #43d27a; box-shadow: 0 0 10px #43d27a; }
+  .hero h1 { font-size: clamp(40px, 5.6vw, 72px); margin-bottom: 22px; }
+  .hero h1 .accent {
+    background: linear-gradient(120deg, #6f93ff 0%, #2f6bff 60%, #6f93ff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p.lead { font-size: 18px; color: var(--text-dim); max-width: 540px; margin-bottom: 36px; }
+  .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 44px; }
+  .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 540px; }
+  .hero-stats .stat { border-left: 1px solid var(--border-strong); padding-left: 18px; }
+  .hero-stats .num { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; color: white; letter-spacing: -0.02em; }
+  .hero-stats .lbl { font-size: 12px; color: var(--text-mute); margin-top: 4px; }
+
+  /* Dashboard mock */
+  .dash {
+    position: relative;
+    border-radius: 22px;
+    padding: 22px;
+    background: linear-gradient(180deg, rgba(20,30,70,0.6), rgba(8,12,28,0.6));
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 50px 120px -40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .dash::before {
+    content: ""; position: absolute; inset: -1px; border-radius: 22px;
+    background: linear-gradient(135deg, rgba(47,107,255,0.5), transparent 40%, rgba(47,107,255,0.2));
+    z-index: -1; filter: blur(20px); opacity: .7;
+  }
+  .dash-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .dash-title { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: var(--text-mute); letter-spacing: 0.1em; text-transform: uppercase; }
+  .dash-dots { display: flex; gap: 6px; }
+  .dash-dots span { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+  .dash-metric {
+    border-radius: 14px;
+    padding: 18px 20px;
+    background: rgba(8,12,28,0.7);
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .dash-metric .label { font-size: 12px; color: var(--text-mute); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+  .dash-metric .value { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; }
+  .dash-metric .delta { font-size: 12px; color: #43d27a; font-weight: 600; }
+  .dash-chart {
+    height: 110px;
+    margin-top: 8px;
+    background:
+      linear-gradient(180deg, rgba(47,107,255,0.18), transparent 80%),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 50px);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .dash-chart svg { width: 100%; height: 100%; }
+
+  /* ---------- Marquee logos ---------- */
+  .clients { padding: 60px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .clients-row { display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+  .clients-label { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text-mute); letter-spacing: 0.18em; text-transform: uppercase; }
+  .client { font-family: 'Sora', sans-serif; font-weight: 600; color: var(--text-dim); font-size: 18px; letter-spacing: -0.01em; opacity: .7; }
+
+  /* ---------- Section headers ---------- */
+  .section-head { margin-bottom: 64px; max-width: 720px; }
+  .section-head .eyebrow { margin-bottom: 18px; }
+  .section-head h2 { font-size: clamp(32px, 4.2vw, 52px); margin-bottom: 16px; }
+  .section-head p { color: var(--text-dim); font-size: 17px; max-width: 580px; }
+  .section-head .accent {
+    background: linear-gradient(120deg, #6f93ff, #2f6bff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* ---------- Pain points ---------- */
+  .pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 880px) { .pain-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 580px) { .pain-grid { grid-template-columns: 1fr; } }
+  .pain-card {
+    border-radius: var(--radius);
+    padding: 28px 26px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    transition: transform .25s, border-color .25s, background .25s;
+  }
+  .pain-card:hover { transform: translateY(-4px); border-color: var(--border-strong); background: var(--surface-2); }
+  .pain-num { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 44px; color: rgba(120,150,220,0.18); line-height: 1; margin-bottom: 12px; }
+  .pain-card h3 { font-size: 18px; margin-bottom: 8px; }
+  .pain-card p { color: var(--text-dim); font-size: 14.5px; }
+
+  /* ---------- Services ---------- */
+  .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 980px) { .services-grid { grid-template-columns: 1fr; } }
+  .service {
+    border-radius: 22px;
+    padding: 32px 30px;
+    background: linear-gradient(180deg, rgba(20,28,58,0.55), rgba(10,14,30,0.55));
+    border: 1px solid var(--border-strong);
+    position: relative; overflow: hidden;
+    transition: transform .3s;
+  }
+  .service:hover { transform: translateY(-6px); }
+  .service::after {
+    content: ""; position: absolute; top: -40%; right: -30%;
+    width: 60%; height: 100%;
+    background: radial-gradient(circle, rgba(47,107,255,0.18), transparent 60%);
+    pointer-events: none;
+  }
+  .service-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, rgba(47,107,255,0.25), rgba(20,40,120,0.4));
+    border: 1px solid rgba(47,107,255,0.3);
+    display: grid; place-items: center;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .service-icon svg { width: 24px; height: 24px; color: #6f93ff; }
+  .service h3 { font-size: 22px; margin-bottom: 10px; }
+  .service p { color: var(--text-dim); font-size: 15px; margin-bottom: 22px; }
+  .service-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .service-list li { display: flex; align-items: center; gap: 10px; color: var(--text); font-size: 14px; }
+  .service-list li::before {
+    content: ""; flex-shrink: 0;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(47,107,255,0.15); border: 1px solid rgba(47,107,255,0.4);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236f93ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 8 7 11 12 5'/%3E%3C/svg%3E");
+    background-position: center; background-repeat: no-repeat;
+  }
+
+  /* ---------- About ---------- */
+  .about-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: center; }
+  @media (max-width: 980px) { .about-grid { grid-template-columns: 1fr; gap: 50px; } }
+  .about-visual {
+    aspect-ratio: 4/5;
+    border-radius: 22px;
+    border: 1px solid var(--border-strong);
+    background-image: url("assets/foto-fundador.png");
+    background-size: cover;
+    background-position: center top;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 40px 100px -40px rgba(0,0,0,0.8);
+  }
+  .about-visual::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(5,7,13,0.75) 100%);
+    pointer-events: none;
+  }
+  .about-badge {
+    position: absolute; bottom: 22px; left: 22px;
+    background: rgba(8,12,28,0.85); backdrop-filter: blur(10px);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 13px;
+  }
+  .about-badge strong { display: block; font-family: 'Sora', sans-serif; color: white; margin-bottom: 2px; }
+  .about-badge span { color: var(--text-mute); font-size: 11px; letter-spacing: 0.05em; }
+
+  .about h2 { font-size: clamp(32px, 4vw, 48px); margin-bottom: 22px; }
+  .about p { color: var(--text-dim); font-size: 16px; margin-bottom: 18px; }
+  .about-bullets { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 32px; }
+  .about-bullets div { padding: 16px 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); }
+  .about-bullets .k { font-family: 'Sora', sans-serif; font-size: 28px; color: white; font-weight: 700; }
+  .about-bullets .v { font-size: 13px; color: var(--text-mute); }
+
+  /* ---------- Process ---------- */
+  .steps { display: grid; grid-template-columns: 1fr; gap: 14px; max-width: 900px; margin: 0 auto; }
+  .step {
+    display: grid; grid-template-columns: 80px 1fr auto; gap: 28px; align-items: center;
+    padding: 24px 28px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: border-color .2s, background .2s;
+  }
+  .step:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .step-num { font-family: 'Sora', sans-serif; font-size: 38px; font-weight: 700; color: var(--blue-soft); opacity: .35; }
+  .step h4 { font-size: 18px; margin-bottom: 4px; }
+  .step p { color: var(--text-dim); font-size: 14.5px; }
+  .step-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); }
+  @media (max-width: 680px) { .step { grid-template-columns: 60px 1fr; gap: 18px; padding: 20px; } .step-tag { display: none; } }
+
+  /* ---------- Social proof / Testimonials ---------- */
+  .results-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 60px; }
+  @media (max-width: 880px) { .results-row { grid-template-columns: 1fr 1fr; } }
+  .result-card {
+    border-radius: 16px;
+    border: 1px solid var(--border-strong);
+    padding: 26px 24px;
+    background: linear-gradient(180deg, rgba(20,30,70,0.4), rgba(8,12,28,0.4));
+  }
+  .result-card .big { font-family: 'Sora', sans-serif; font-size: 42px; font-weight: 700; letter-spacing: -0.02em;
+    background: linear-gradient(120deg, #ffffff 0%, #6f93ff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    line-height: 1;
+  }
+  .result-card .label { color: var(--text-dim); font-size: 14px; margin-top: 10px; }
+
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 880px) { .testimonials-grid { grid-template-columns: 1fr; } }
+  .testimonial {
+    border-radius: 18px;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .testimonial-text { font-size: 15.5px; line-height: 1.65; color: var(--text); }
+  .testimonial-text::before { content: "\201C"; font-family: 'Sora', sans-serif; font-size: 48px; color: var(--blue-soft); line-height: 0.2; display: block; margin-bottom: 8px; opacity: .6; }
+  .testimonial-author { display: flex; gap: 12px; align-items: center; padding-top: 18px; border-top: 1px solid var(--border); }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #1a3a8c, #2f6bff);
+    display: grid; place-items: center;
+    font-family: 'Sora', sans-serif; font-weight: 700; color: white;
+  }
+  .testimonial-author .name { font-weight: 600; font-size: 14px; }
+  .testimonial-author .role { color: var(--text-mute); font-size: 12px; }
+
+  /* ---------- Pricing ---------- */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
+  @media (max-width: 980px) { .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; } }
+  .plan {
+    border-radius: 20px;
+    padding: 36px 32px;
+    background: linear-gradient(180deg, rgba(20,28,58,0.45), rgba(8,12,28,0.45));
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .plan-featured {
+    border-color: rgba(47,107,255,0.5);
+    background: linear-gradient(180deg, rgba(47,107,255,0.12), rgba(8,12,28,0.7));
+    box-shadow: 0 30px 80px -30px rgba(47,107,255,0.4);
+  }
+  .plan-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #2f6bff, #1a44c4);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .plan-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 8px; }
+  .plan h3 { font-size: 26px; margin-bottom: 6px; }
+  .plan-desc { color: var(--text-dim); font-size: 14px; margin-bottom: 26px; }
+  .plan-price { display: flex; align-items: baseline; gap: 6px; margin-bottom: 26px; padding-bottom: 26px; border-bottom: 1px solid var(--border); }
+  .plan-currency { color: var(--text-mute); font-size: 16px; }
+  .plan-amount { font-family: 'Sora', sans-serif; font-size: 54px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .plan-period { color: var(--text-mute); font-size: 14px; }
+  .plan ul { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; flex: 1; }
+  .plan ul li { display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; color: var(--text); }
+  .plan ul li::before {
+    content: ""; flex-shrink: 0; margin-top: 4px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: rgba(47,107,255,0.18); border: 1px solid rgba(47,107,255,0.4);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236f93ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 8 7 11 12 5'/%3E%3C/svg%3E");
+    background-position: center; background-repeat: no-repeat; background-size: 10px;
+  }
+  .plan .btn { width: 100%; justify-content: center; }
+
+  /* ---------- FAQ ---------- */
+  .faq-wrap { max-width: 820px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 4px 0;
+  }
+  .faq-item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 26px 8px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    font-family: 'Sora', sans-serif; font-weight: 600; font-size: 17px;
+    color: var(--text);
+    transition: color .2s;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary:hover { color: var(--blue-soft); }
+  .faq-icon { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border-strong); display: grid; place-items: center; flex-shrink: 0; transition: transform .3s, background .3s; }
+  .faq-icon::before, .faq-icon::after { content: ""; position: absolute; width: 10px; height: 2px; background: var(--blue-soft); transition: transform .3s; border-radius: 2px; }
+  .faq-icon { position: relative; }
+  .faq-icon::after { transform: rotate(90deg); }
+  .faq-item[open] .faq-icon { background: rgba(47,107,255,0.15); }
+  .faq-item[open] .faq-icon::after { transform: rotate(0deg); }
+  .faq-answer { padding: 0 8px 28px; color: var(--text-dim); font-size: 15px; max-width: 720px; }
+
+  /* ---------- Final CTA ---------- */
+  .final-cta {
+    border-radius: 28px;
+    padding: 80px 50px;
+    background:
+      radial-gradient(800px 300px at 50% 0%, rgba(47,107,255,0.25), transparent 70%),
+      linear-gradient(180deg, rgba(20,30,70,0.6), rgba(8,12,28,0.8));
+    border: 1px solid var(--border-strong);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .final-cta::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 30px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 30px);
+    mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, transparent 75%);
+    pointer-events: none;
+  }
+  .final-cta h2 { font-size: clamp(34px, 4.8vw, 60px); margin-bottom: 16px; position: relative; }
+  .final-cta h2 .accent {
+    background: linear-gradient(120deg, #6f93ff, #2f6bff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .final-cta p { color: var(--text-dim); font-size: 17px; max-width: 540px; margin: 0 auto 36px; position: relative; }
+  .final-cta .btn { position: relative; }
+
+  /* ---------- Footer ---------- */
+  footer { padding: 70px 0 40px; border-top: 1px solid var(--border); }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 50px; margin-bottom: 50px; }
+  @media (max-width: 880px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 36px; } }
+  .footer-col h5 { font-family: 'Sora', sans-serif; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); margin-bottom: 18px; }
+  .footer-col a, .footer-col p { color: var(--text-dim); font-size: 14px; display: block; margin-bottom: 10px; }
+  .footer-col a:hover { color: var(--text); }
+  .footer-brand p { max-width: 320px; }
+  .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 16px; }
+  .footer-bottom p { color: var(--text-mute); font-size: 13px; }
+  .socials { display: flex; gap: 10px; }
+  .socials a { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border-strong); display: grid; place-items: center; color: var(--text-dim); transition: color .2s, background .2s; }
+  .socials a:hover { color: white; background: rgba(47,107,255,0.15); }
+
+</style>
+<script>!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1016470471295333');
+fbq('track', 'PageView');</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1016470471295333&ev=PageView&noscript=1"></noscript>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-R4N3FRSXCB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-R4N3FRSXCB');
+</script>
+</head>
+<body style="">
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="container nav-inner" style="justify-content:flex-start;">
+    <a href="#" class="logo">
+      <div class="logo-mark"></div>
+      <div>
+        <div>RAVI ROCHA</div>
+        <span class="logo-sub">Tráfego &amp; marketing</span>
+      </div>
+    </a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" style="font-weight: 400; line-height: 1.5; letter-spacing: 1px; font-size: 16px; padding: 0px">
+  <div class="hero-shapes" aria-hidden="true">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+    <div class="shape shape-5"></div>
+  </div>
+  <div class="hero-fade" aria-hidden="true"></div>
+  <div class="container hero-grid">
+    <div style="padding: 0px">
+      <div class="hero-tag" style="">
+        <span class="dot"></span>
+        Ajudando empresas a faturar mais!</div>
+      <h1 style="">Tenha anúncios que <span style="color: rgb(30, 75, 207);">vendem todos </span><span style="color: rgb(30, 75, 207);">os dias</span> e aumentam o seu faturamento.</h1>
+      <p class="lead" style="">Criamos e gerenciamos campanhas de tráfego pago, Google Meu Negócio e automações com IA para atrair clientes prontos para comprar.&nbsp;<span data-start="518" data-end="607">Faça um diagnóstico gratuito e agende uma consultoria para ver como escalar seu faturamento com previsibilidade.</span></p>
+      <div class="hero-ctas">
+        <a href="https://form.respondi.app/AQObrB1M" class="btn btn-primary">
+          Quero meu diagnóstico gratuito
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"></path></svg>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="num" style="">+R$ 800k</div>
+          <div class="lbl" style="">Investidos em tráfego</div>
+        </div>
+        <div class="stat">
+          <div class="num" style="">30+</div>
+          <div class="lbl">Empresas escaladas</div>
+        </div>
+        <div class="stat">
+          <div class="num">4.2x</div>
+          <div class="lbl">ROAS médio</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard mock -->
+    <div class="dash" aria-hidden="true">
+      <div class="dash-top">
+        <span class="dash-title">PAINEL DE RESULTADOS DELIVERY ÚLTIMOS 30 DIAS</span>
+        <div class="dash-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dash-metric">
+        <div>
+          <div class="label">Faturamento gerado</div>
+          <div class="value">R$ 16.657,15</div>
+        </div>
+        <div class="delta">+42,8%</div>
+      </div>
+      <div class="dash-metric">
+        <div>
+          <div class="label">ROAS</div>
+          <div class="value">16.2x</div>
+        </div>
+        <div class="delta">+18,3%</div>
+      </div>
+      <div class="dash-metric">
+        <div>
+          <div class="label">TOTAL DE COMPRAS</div>
+          <div class="value">370</div>
+        </div>
+        <div class="delta">+61,2%</div>
+      </div>
+      <div class="dash-chart">
+        <svg viewBox="0 0 400 110" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#2f6bff" stop-opacity=".5"></stop>
+              <stop offset="100%" stop-color="#2f6bff" stop-opacity="0"></stop>
+            </linearGradient>
+          </defs>
+          <path d="M0,85 C40,80 60,60 90,55 C130,48 160,70 200,55 C240,40 270,30 310,22 C340,16 370,10 400,8 L400,110 L0,110 Z" fill="url(#g1)"></path>
+          <path d="M0,85 C40,80 60,60 90,55 C130,48 160,70 200,55 C240,40 270,30 310,22 C340,16 370,10 400,8" fill="none" stroke="#6f93ff" stroke-width="2"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLIENTS ============ -->
+<section class="clients" style="padding: 50px 0px; border-width: 0px 0px 1.11111px">
+  <div class="container clients-row">
+    <span class="clients-label">Empresas que crescem com a gente</span>
+    <span class="client">Napelle Laser</span>
+    <span class="client">Costelão da Paraíba</span>
+    <span class="client">Gohan Sushi</span>
+    <span class="client">Bob's Cariri</span>
+  </div>
+</section>
+
+<!-- ============ PAIN POINTS ============ -->
+<section id="problema" style="padding: 30px 0px 0px">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Como destravamos</span>
+      <h2 style="">Você <span style="color: rgb(39, 90, 233);">está deixando dinheiro na mesa</span> todos os dias, e provavelmente nem percebe.</h2>
+      <p style="">Crescimento estagnado quase nunca é falta de produto, é falta de sistema. A gente entra com os 6 pilares que ajudam o seu negócio a ser uma máquina de vendas.</p>
+    </div>
+
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-num">01</div>
+        <h3>Estratégia de vendas com tráfego pago</h3>
+        <p>Funil, oferta e segmentação pensados para converter — não só atrair. Cada real investido com objetivo claro de venda.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-num">02</div>
+        <h3>Criativos de alta conversão</h3>
+        <p>Anúncios que param o feed e fazem o cliente clicar. Testes semanais para escalar o que vende e cortar o que não vende.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-num">03</div>
+        <h3>Gerenciamento de redes sociais</h3>
+        <p>Social media estratégico que constrói autoridade e mantém sua marca presente para quem ainda não está pronto para comprar.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-num">04</div>
+        <h3>Design gráfico e edição de vídeo</h3>
+        <p>Edição profissional do material que você nos envia — feeds, reels e anúncios. Sem produção ou captação: só transformamos seu conteúdo em arte que converte.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-num">05</div>
+        <h3>Google Meu Negócio &amp; SEO local</h3>
+        <p>Reestruturação completa do perfil, otimização de SEO e ranqueamento de palavras-chave para dominar a busca local da sua região.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-num">06</div>
+        <h3>Automação com Inteligência Artificial</h3>
+        <p>Gerenciamento e implantação de IA no atendimento, qualificação e operação — pra você parar de perder cliente por demora ou esquecimento.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section id="servicos" style="padding-top:40px;">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">O que entregamos</span>
+      <h2>Três frentes integradas para <span class="accent">multiplicar receita</span>.</h2>
+      <p style="">Não vendemos pacote. Operamos como sócios da sua empresa trabalhando como um sistema único para entregar o melhor resultado possível.</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 14l4-4 4 4 5-6"></path></svg>
+        </div>
+        <h3>Tráfego pago de performance</h3>
+        <p style="">Campanhas em Meta Ads e Google Ads estruturadas com foco em CAC, ROAS e LTV.</p>
+        <ul class="service-list">
+          <li style="">Estratégia de funil completo</li>
+          <li>Criativos validados semanalmente</li>
+          <li>Otimização diária por especialista</li>
+          <li>Painel ao vivo de resultados</li>
+        </ul>
+      </div>
+
+      <div class="service">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-7-8-13a8 8 0 0116 0c0 6-8 13-8 13z"></path><circle cx="12" cy="9" r="3"></circle></svg>
+        </div>
+        <h3>Google Meu Negócio</h3>
+        <p>Otimização contínua do seu perfil para dominar a busca local e converter quem está pronto para comprar.</p>
+        <ul class="service-list">
+          <li>SEO local e palavras-chave</li>
+          <li style="">Postagens e fotos quinzenais</li>
+          <li>Ranqueamento monitorado</li>
+        </ul>
+      </div>
+
+      <div class="service">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M8 12h.01M12 12h.01M16 12h.01"></path></svg>
+        </div>
+        <h3>Automação com IA</h3>
+        <p>Agentes inteligentes que atendem, qualificam e agendam 24 horas por dia, sem perder lead nem cliente.</p>
+        <ul class="service-list">
+          <li>Atendimento no WhatsApp 24/7</li>
+          <li>Qualificação automática de leads</li>
+          <li>Integração com CRM</li>
+          <li>Treinamento da IA com sua voz</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="sobre" style="padding: 5px 0px 0px">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-visual" style="background-size: cover; opacity: 100; border-color: rgb(255, 255, 255)">
+        <div class="about-badge" style="opacity: 5">
+          <strong>+2 anos no jogo</strong>
+          <span style="color: rgb(255, 255, 255)">OPERANDO MÍDIA PAGA</span>
+        </div>
+      </div>
+      <div class="about">
+        <span class="eyebrow" style="margin-bottom:18px; display:inline-flex;">Quem está por trás</span>
+        <h2>Não somos agência. Somos seu <span style="background:linear-gradient(120deg,#6f93ff,#2f6bff);-webkit-background-clip:text;background-clip:text;color:transparent;">time de aquisição</span>.</h2>
+        <p>Você não contrata um freelancer solto: você ganha uma equipe completa trabalhando para o seu resultado, com gestor dedicado e contato direto pelo WhatsApp.</p>
+        <p>Cada profissional tem um papel claro dentro da nossa operação — e todos remam para o mesmo lugar: fazer sua empresa faturar mais.</p>
+
+        <div class="about-bullets">
+          <div>
+            <div class="k" style="font-size:18px;">Designer Gráfico</div>
+            <div class="v">Responsável pela identidade visual da sua marca.</div>
+          </div>
+          <div>
+            <div class="k" style="font-size:18px;">Social Media</div>
+            <div class="v">Gestor das suas redes sociais e conteúdo.</div>
+          </div>
+          <div>
+            <div class="k" style="font-size:18px;">Editor de Vídeo</div>
+            <div class="v">Edição profissional de reels, anúncios e VSL.</div>
+          </div>
+          <div>
+            <div class="k" style="font-size:18px;">Gestor de Tráfego</div>
+            <div class="v">Estratégia, campanhas e otimização diária.</div>
+          </div>
+          <div style="grid-column: span 2;">
+            <div class="k" style="font-size:18px;">Treinamento Comercial</div>
+            <div class="v">Capacitamos o seu time de vendas para converter os leads que entregamos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section id="metodo" style="padding: 50px 0px 0px">
+  <div class="container">
+    <div class="section-head" style="text-align:center; margin: 0 auto 64px;">
+      <span class="eyebrow" style="margin: 0 auto 18px;">Método</span>
+      <h2 style="">Conheça o <span style="color: rgb(60, 115, 255);">processo</span> para transformar a sua empresa!</h2>
+      <p style="margin: 0 auto;">Um processo claro em 5 etapas. Sem mistério, sem promessa vazia, sem espera.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div>
+          <h4>Diagnóstico estratégico</h4>
+          <p>Mergulhamos no seu negócio, números atuais, funil e proposta. Sem isso, qualquer campanha é tiro no escuro.</p>
+        </div>
+        <span class="step-tag">Semana 1</span>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div>
+          <h4>Planejamento e estrutura</h4>
+          <p>Definimos KPIs, verba, plataformas e estrutura de campanhas. Você aprova a estratégia antes de qualquer real ser investido.</p>
+        </div>
+        <span class="step-tag">Semana 1–2</span>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div>
+          <h4>Lançamento e otimização</h4>
+          <p>Campanhas no ar, criativos rodando, IA conversando com seus leads. Otimização diária por gestor dedicado.</p>
+        </div>
+        <span class="step-tag">Semana 2–4</span>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div>
+          <h4>Análise e ajuste fino</h4>
+          <p>Painéis ao vivo, reunião semanal com diretoria e correção de rota baseada em dado — não em achismo.</p>
+        </div>
+        <span class="step-tag">Contínuo</span>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div>
+          <h4>Escala previsível</h4>
+          <p>Com canal validado, escalamos o investimento mantendo o ROAS. Crescimento que cabe no seu fluxo de caixa.</p>
+        </div>
+        <span class="step-tag">Mês 2+</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section id="resultados" style="padding: 5px 0px 0px">
+  <div class="container" style="padding: 50px 0px 0px">
+    <div class="section-head">
+      <span class="eyebrow">Prova social</span>
+      <h2 style="color: rgb(255, 255, 255);">Resultados que estão na <span class="accent" style="color: rgb(68, 32, 255);"><span style="color: rgb(60, 115, 255);">conta dos clientes,</span></span>&nbsp;não só no nosso slide.</h2>
+      <p>Empresários que decidiram tratar marketing como o que ele é: máquina de receita.</p>
+    </div>
+
+    <div class="results-row">
+      <div class="result-card">
+        <div class="big">+R$ 60k</div>
+        <div class="label">Faturamento gerado em 4 meses para um cliente dono de delivery.</div>
+      </div>
+      <div class="result-card">
+        <div class="big">7.4x</div>
+        <div class="label">ROAS médio, sempre com análise de resultados, para buscar melhorar cada vez mais.</div>
+      </div>
+      <div class="result-card">
+        <div class="big" style="">-48%</div>
+        <div class="label">Redução de custo por lead em 90 dias.</div>
+      </div>
+      <div class="result-card">
+        <div class="big" style="">+218%</div>
+        <div class="label">Aumento de chamadas pelo Google Meu Negócio.</div>
+      </div>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial">
+        <p class="testimonial-text">Hoje recebemos mais de 300 leads por mês, todos muito mais qualificados. Além disso, o treinamento comercial fez total diferença, a equipe começou a converter muito mais.
+
+O faturamento cresceu de forma consistente e finalmente temos previsibilidade.</p>
+        <div class="testimonial-author">
+          <div class="avatar">RB</div>
+          <div>
+            <div class="name">Renata Barros</div>
+            <div class="role">CEO · Napelle Laser</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <p class="testimonial-text">Reduzimos o custo por pedido em mais de 50% e hoje operamos com um ROAS médio de 12.
+Os pedidos aumentaram, o caixa girou mais rápido e agora o tráfego virou um dos principais motores do nosso crescimento.</p>
+        <div class="testimonial-author">
+          <div class="avatar">SF</div>
+          <div>
+            <div class="name">Sheila Ferreira</div>
+            <div class="role">Sócia · Gohan Sushi</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <p class="testimonial-text">Em apenas 4 meses batemos mais de R$60 mil e o tráfego já representa cerca de 20% de toda a receita. Estou amandooo o resultado. São MUITOS pedidos todos os dias!!!</p>
+        <div class="testimonial-author">
+          <div class="avatar">LM</div>
+          <div>
+            <div class="name">Leticia Maria</div>
+            <div class="role">Sócia · Costelão da Paraíba</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" style="padding: 50px 0px 0px">
+  <div class="container">
+    <div class="section-head" style="text-align:center; margin: 0 auto 56px;">
+      <span class="eyebrow" style="margin: 0 auto 18px;">FAQ</span>
+      <h2 style="">Tire suas <span style="color: rgb(60, 115, 255);">dúvidas</span>.</h2>
+    </div>
+
+    <div class="faq-wrap">
+      <details class="faq-item" open="">
+        <summary>Em quanto tempo vejo resultado?</summary>
+        <div class="faq-answer">A primeira semana é de estruturação e aprendizado. Resultados consistentes aparecem entre 60 e 90 dias, dependendo do setor comercial e da verba. Crescimento sustentável é construção, não sorte.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Qual investimento mínimo em mídia?</summary>
+        <div class="faq-answer">No caso do tráfego pago, recomendamos pelo menos R$ 30 por dia em mídia (R$ 900 por mês). Abaixo disso o algoritmo não tem dado suficiente para otimizar e o resultado fica instável.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Como funciona a automação com IA?</summary>
+        <div class="faq-answer">Fazemos uma análise da sua empresa para entender qual a melhor implementação de IA que o seu negócio precisa. Por isso a automação é totalmente personalizada, varia de empresa para empresa, conforme o atendimento, o funil e os processos atuais.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section id="contato" style="padding-top:60px;">
+  <div class="container">
+    <div class="final-cta">
+      <span class="eyebrow" style="margin-bottom:18px;">Pronto para começar</span>
+      <h2>Coloque sua empresa em <span class="accent">crescimento previsível</span>.</h2>
+      <p>Vamos olhar seus números, mostrar onde está o gargalo e dizer com clareza se podemos te ajudar ou não, e agendar uma conversa de 30 minutos.&nbsp;</p>
+      <a href="https://form.respondi.app/AQObrB1M" class="btn btn-primary" style="padding: 18px 32px; font-size: 16px;">
+        Fazer diagnóstico e agendar consultoria gratuita
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"></path></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="#" class="logo" style="margin-bottom:20px;">
+          <div class="logo-mark"></div>
+          <div>
+            <div>RAVI ROCHA</div>
+            <span class="logo-sub">Tráfego &amp; marketing</span>
+          </div>
+        </a>
+        <p>Operação de aquisição para empresários que querem parar de improvisar e começar a crescer com método.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Empresa</h5>
+        <a href="#sobre">Sobre</a>
+        <a href="#metodo">Método</a>
+        <a href="#resultados">Resultados</a>
+      </div>
+      <div class="footer-col">
+        <h5>Serviços</h5>
+        <a href="#servicos">Tráfego pago</a>
+        <a href="#servicos">Google Meu Negócio</a>
+        <a href="#servicos">Automação com IA</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contato</h5>
+        <a href="#" style="">onovorrdigital@gmail.com</a>
+        <a href="#" style="">&nbsp;(88) 9 9998-0463</a>
+        <a href="#" style="">Juazeiro do Norte - CE</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Ravi Rocha. Todos os direitos reservados.</p>
+      <div class="socials">
+        <a href="https://www.instagram.com/ravisrocha/" target="_blank" rel="noopener" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"></circle></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
